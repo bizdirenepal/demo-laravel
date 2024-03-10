@@ -1,6 +1,6 @@
 <?php
 
-namespace app\services;
+namespace App\Services;
 
 use GuzzleHttp\Client;
 
@@ -24,7 +24,10 @@ class ProductService
     {
         $this->_client = new Client([
             'base_uri' => env('API_URL', 'https://api.bizdirenepal.com'),
-            'headers' => ['Authorization' => 'Bearer ' . env('API_KEY')],
+            'headers' => [
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer ' . env('API_KEY'),
+            ],
         ]);
     }
 
@@ -33,7 +36,7 @@ class ProductService
      *
      * @param int $id
      */
-    public function fetchOne(int $id)
+    public function findOne(int $id)
     {
         $response = $this->_client->get('products/' . $id);
         if (!$response->getStatusCode()) {
@@ -45,7 +48,7 @@ class ProductService
     /**
      * Get all product details
      */
-    public function fetchAll(array $data)
+    public function findAll(array $data)
     {
         $response = $this->_client->get('products', ['query' => $data]);
         if (!$response->getStatusCode()) {
@@ -74,6 +77,20 @@ class ProductService
         $response = $this->_client->put('products/' . $id, ['json' => $data]);
         if (!$response->getStatusCode()) {
             throw new \Exception('Unable to update product.');
+        }
+        return $response->getBody()->getContents();
+    }
+
+    /**
+     * Get product reviews by id
+     *
+     * @param int $id
+     */
+    public function getReviews(int $id)
+    {
+        $response = $this->_client->get('product-reviews', ['query' => ['product_id' => $id]]);
+        if (!$response->getStatusCode()) {
+            throw new \Exception('Unable to fetch reviews.');
         }
         return $response->getBody()->getContents();
     }

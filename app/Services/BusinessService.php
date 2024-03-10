@@ -1,6 +1,6 @@
 <?php
 
-namespace app\services;
+namespace App\Services;
 
 use GuzzleHttp\Client;
 
@@ -23,8 +23,11 @@ class BusinessService
     public function __construct()
     {
         $this->_client = new Client([
-            'base_uri' => env('API_URL', 'https://api.bizdirenepal.com'),
-            'headers' => ['Authorization' => 'Bearer ' . env('API_KEY')],
+            'base_uri' => env('API_URL', 'https://api.bizdirenepal.com/v1'),
+            'headers' => [
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer ' . env('API_KEY'),
+            ],
         ]);
     }
 
@@ -33,7 +36,7 @@ class BusinessService
      *
      * @param int $id
      */
-    public function fetchOne(int $id)
+    public function findOne(int $id)
     {
         $response = $this->_client->get('businesses/' . $id);
         if (!$response->getStatusCode()) {
@@ -45,7 +48,7 @@ class BusinessService
     /**
      * Get all business details
      */
-    public function fetchAll(array $data)
+    public function findAll(array $data)
     {
         $response = $this->_client->get('businesses', ['query' => $data]);
         if (!$response->getStatusCode()) {
@@ -74,6 +77,18 @@ class BusinessService
         $response = $this->_client->put('businesses/' . $id, ['json' => $data]);
         if (!$response->getStatusCode()) {
             throw new \Exception('Unable to update business.');
+        }
+        return $response->getBody()->getContents();
+    }
+
+    /**
+     * Save business contact
+     */
+    public function saveContact(array $data)
+    {
+        $response = $this->_client->post('business-contacts', ['json' => $data]);
+        if (!$response->getStatusCode()) {
+            throw new \Exception('Unable to send message business.');
         }
         return $response->getBody()->getContents();
     }
